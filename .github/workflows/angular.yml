@@ -1,0 +1,35 @@
+name: Angular CI Workflow
+
+on: [push, pull_request]
+
+env:
+  DOCKER_IMAGE_NAME: "test-docker"
+  SONAR_ORGANIZATION: "r3aper89"
+  SONAR_PROJECT_KEY: "r3aper89_gdp-assessment"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+      id-token: write
+      packages: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Custom Angular.js action
+        uses: ./.github/actions/node
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          gitleaks_token: ${{ secrets.GITLEAKS_TOKEN }}
+          node_version: "lts/*"
+          sonar_token: ${{ secrets.SONAR_TOKEN }}
+          sonar_args: >
+            -Dsonar.organization=${{ env.SONAR_ORGANIZATION }}
+            -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }}
+          docker_image_name: ${{ env.DOCKER_IMAGE_NAME }}
+          dockerhub_username: ${{ secrets.DOCKERHUB_USERNAME }}
+          dockerhub_token: ${{ secrets.DOCKERHUB_TOKEN }}
